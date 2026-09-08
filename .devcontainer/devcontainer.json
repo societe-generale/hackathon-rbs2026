@@ -7,7 +7,13 @@
   "features": {
     "ghcr.io/devcontainers/features/azure-cli:1": {
       "version": "latest"
-    }
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/copilot-cli:1": {
+      "version": "latest"
+    },
   },
   "mounts": [
     // Fast virtual environment I/O inside Docker volume
@@ -28,7 +34,9 @@
         "charliermarsh.ruff",
         "ms-vscode.azurecli",
         "ms-azuretools.vscode-docker",
-        "humao.rest-client"
+        "humao.rest-client",
+        "gitHub.copilot",
+        "gitHub.copilot-chat"
       ]
     }
   },
