@@ -75,10 +75,13 @@ The Dev Container will automatically:
 
 ```
 hackathon/
-├── infra/                  # Bicep Azure AI Foundry infrastructure
-│   ├── foundry.bicep       # Foundry resource, project, and LLM deployment
-│   ├── main.bicep          # Subscription-scoped deployment entry point
-│   └── main.bicepparam     # Deployment configuration
+├── infra/                  # Bicep hackathon infrastructure (one file per resource kind)
+│   ├── main.bicep          # Subscription-scoped entry: creates the RG + wires all modules
+│   ├── main.bicepparam     # Team-specific configuration (teamName drives naming)
+│   ├── foundry.bicep       # Azure AI Foundry (LLM) resource, project, model deployments
+│   ├── storage.bicep       # Storage account + blob container for RAG documents
+│   ├── cosmos.bicep        # Cosmos DB (NoSQL, serverless) for chat / agent memory
+│   └── search.bicep        # Azure AI Search (vector + semantic) for retrieval
 ├── .devcontainer/          # Dev container configuration
 │   ├── Dockerfile          # Container image definition
 │   └── devcontainer.json   # VS Code container settings
@@ -90,12 +93,21 @@ hackathon/
 └── README.md              # This file
 ```
 
-## Azure AI Foundry infrastructure
+## Hackathon Azure infrastructure
 
-The Bicep deployment in [`infra/`](./infra/) provisions a Microsoft Foundry
-resource (`Microsoft.CognitiveServices/accounts` with `kind: 'AIServices'`),
-its Foundry project, and one or more LLM deployments. Each deployment name is
-the value applications send as the `model` or deployment identifier.
+The Bicep deployment in [`infra/`](./infra/) provisions everything a team needs
+to build a RAG agentic bot, all inside a single per-team resource group:
+
+| Resource | File | Purpose |
+| --- | --- | --- |
+| Azure AI Foundry (AI Services) + project + model deployments | `foundry.bicep` | LLM endpoint used by your agent |
+| Storage account + `documents` blob container | `storage.bicep` | Store source documents and artifacts |
+| Cosmos DB (NoSQL, serverless) + `agent`/`sessions` container | `cosmos.bicep` | Chat history, session state, agent memory |
+| Azure AI Search (Basic tier) | `search.bicep` | Vector + semantic retrieval for RAG |
+
+Each team deploys their own resource group by setting a unique `teamName` in
+`main.bicepparam`. All resource names default to `<kind>-rbs2026-<teamName>`,
+so two teams can deploy side-by-side in the same subscription without collision.
 
 ### Deploying
 
@@ -106,24 +118,19 @@ the value applications send as the `model` or deployment identifier.
    az account set --subscription "<subscription-id-or-name>"
    ```
 
-2. Update [`infra/main.bicepparam`](./infra/main.bicepparam). Select a region,
-   Foundry resource name, and one or more `modelDeployments` entries with model
-   names and versions available to your Azure subscription. The Foundry resource
-   name must be globally unique.
+2. Edit [`infra/main.bicepparam`](./infra/main.bicepparam). At minimum set
+   `teamName` to your team's short identifier (lowercase, 2-12 chars). Optionally
+   override `location` or `modelDeployments`. All resource names are derived
+   from `teamName` unless you override them explicitly.
 
    ```bicep
+   param teamName = 'panthers'
+   param location = 'swedencentral'
    param modelDeployments = [
      {
        deploymentName: 'chat'
        modelName: 'gpt-4o-mini'
        modelVersion: '2026-03-17'
-       skuName: 'GlobalStandard'
-       capacity: 1
-     }
-     {
-       deploymentName: 'reasoning'
-       modelName: 'gpt-5.6-terra'
-       modelVersion: '2026-07-09'
        skuName: 'GlobalStandard'
        capacity: 1
      }
@@ -137,31 +144,15 @@ the value applications send as the `model` or deployment identifier.
    make deploy
    ```
 
-   This is equivalent to running:
-
-   ```bash
-   az bicep build --file infra/main.bicep
-   az deployment sub create \
-     --name foundry-llm \
-     --location swedencentral \
-     --template-file infra/main.bicep \
-     --parameters infra/main.bicepparam
-   ```
-
    Other useful targets: `make whatif` to preview changes before deploying,
-   `make outputs` to print the endpoint/project/deployment names of the last
-   deployment, and `make destroy` to delete the resource group. Run `make
-   help` to list all targets.
+   `make outputs` to print the endpoints/names of the last deployment, and
+   `make destroy` to delete the resource group. Run `make help` to list all
+   targets.
 
-4. Get the endpoint and configure local application variables:
+4. Get the endpoints and configure local application variables:
 
    ```bash
-   az deployment sub show \
-     --name foundry-llm \
-     --query properties.outputs.foundryEndpoint.value --output tsv
-   az deployment sub show \
-     --name foundry-llm \
-       --query properties.outputs.llmDeploymentNames.value --output tsv
+   make outputs
    az cognitiveservices account keys list \
      --name "<foundry-name>" \
      --resource-group "<resource-group-name>" \
@@ -169,8 +160,8 @@ the value applications send as the `model` or deployment identifier.
    ```
 
    Put the resulting values in `.env` as `AZURE_OPENAI_ENDPOINT`,
-   `AZURE_OPENAI_API_KEY`, and the deployment name your app should use as
-   `AZURE_OPENAI_DEPLOYMENT_NAME`. Do not commit the key.
+   `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_DEPLOYMENT_NAME`, plus the storage
+   / Cosmos / search endpoints your app needs. Do not commit keys.
 
 To remove the deployed resources when they are no longer needed, run
 `make destroy` (or `az group delete --name "<resource-group-name>" --yes`).

@@ -1,14 +1,21 @@
 using './main.bicep'
 
-param resourceGroupName = 'rg-hackathon-rbs2026-adam'
-param location = 'swedencentral'
-param foundryName = 'foundry-hackathon-rbs2026-adam'
-param foundryProjectName = 'rbs2026-adam'
-param foundryProjectDisplayName = 'RBS 2026 Hackathon Dev'
-param foundryProjectDescription = 'Microsoft Foundry project for the RBS 2026 hackathon.'
+// Team identifier: each team picks their own. Drives default names for the
+// resource group and every resource inside it.
+param teamName = 'adam'
 
-// Select a model and version available in the selected Azure region.
+param location = 'swedencentral'
+
+// Select models available in the chosen region. `deploymentName` is what your
+// app sends as the model/deployment identifier (AZURE_OPENAI_DEPLOYMENT_NAME).
 param modelDeployments = [
+  {
+    deploymentName: 'gpt-5.4-mini'
+    modelName: 'gpt-5.4-mini'
+    modelVersion: '2026-03-17'
+    skuName: 'GlobalStandard'
+    capacity: 1
+  }
   {
     deploymentName: 'gpt-5.6-terra'
     modelName: 'gpt-5.6-terra'
@@ -17,8 +24,3 @@ param modelDeployments = [
     capacity: 1
   }
 ]
-
-param tags = {
-  environment: 'dev'
-  project: 'hackathon-rbs2026'
-}

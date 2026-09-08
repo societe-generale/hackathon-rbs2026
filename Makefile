@@ -1,14 +1,15 @@
-## Makefile for deploying the Azure AI Foundry infrastructure (infra/).
+## Makefile for deploying the hackathon Azure infrastructure (infra/).
 ##
-## The Bicep templates are subscription-scoped: `deploy` creates the resource
-## group and all resources inside it in one shot via `az deployment sub create`.
+## The Bicep templates are subscription-scoped: `deploy` creates the team's
+## resource group and every resource inside it (Foundry, Storage, Cosmos,
+## AI Search) in one shot via `az deployment sub create`.
 
 SHELL := /bin/bash
 
 # Location used for the deployment operation itself (can differ from the
 # resource group's own location, which is set in main.bicepparam).
 LOCATION ?= swedencentral
-DEPLOYMENT_NAME ?= foundry-llm
+DEPLOYMENT_NAME ?= hackathon-rbs2026
 
 INFRA_DIR := infra
 TEMPLATE_FILE := $(INFRA_DIR)/main.bicep
@@ -43,17 +44,27 @@ deploy: build ## Deploy the resource group and all Foundry resources in it
 		--parameters $(PARAMETERS_FILE)
 
 .PHONY: outputs
-outputs: ## Show the endpoint, project, deployment names and resource group from the last deploy
+outputs: ## Show the endpoints and resource names from the last deploy
+	@echo "Resource group:"
+	@az deployment sub show --name $(DEPLOYMENT_NAME) --query properties.outputs.resourceGroupName.value --output tsv
 	@echo "Foundry endpoint:"
 	@az deployment sub show --name $(DEPLOYMENT_NAME) --query properties.outputs.foundryEndpoint.value --output tsv
 	@echo "Foundry project name:"
 	@az deployment sub show --name $(DEPLOYMENT_NAME) --query properties.outputs.foundryProjectName.value --output tsv
 	@echo "LLM deployment names:"
 	@az deployment sub show --name $(DEPLOYMENT_NAME) --query properties.outputs.llmDeploymentNames.value --output tsv
-	@echo "Resource group name:"
-	@az deployment sub show --name $(DEPLOYMENT_NAME) --query properties.outputs.deployedResourceGroupName.value --output tsv
+	@echo "Storage account / blob endpoint / documents container:"
+	@az deployment sub show --name $(DEPLOYMENT_NAME) --query properties.outputs.storageAccountName.value --output tsv
+	@az deployment sub show --name $(DEPLOYMENT_NAME) --query properties.outputs.blobEndpoint.value --output tsv
+	@az deployment sub show --name $(DEPLOYMENT_NAME) --query properties.outputs.documentsContainerName.value --output tsv
+	@echo "Cosmos account / endpoint:"
+	@az deployment sub show --name $(DEPLOYMENT_NAME) --query properties.outputs.cosmosAccountName.value --output tsv
+	@az deployment sub show --name $(DEPLOYMENT_NAME) --query properties.outputs.cosmosEndpoint.value --output tsv
+	@echo "AI Search service / endpoint:"
+	@az deployment sub show --name $(DEPLOYMENT_NAME) --query properties.outputs.searchServiceName.value --output tsv
+	@az deployment sub show --name $(DEPLOYMENT_NAME) --query properties.outputs.searchEndpoint.value --output tsv
 
-RESOURCE_GROUP_NAME := $(shell grep -oP "param resourceGroupName\s*=\s*'\K[^']+" $(PARAMETERS_FILE))
+RESOURCE_GROUP_NAME := $(shell az deployment sub show --name $(DEPLOYMENT_NAME) --query properties.outputs.resourceGroupName.value --output tsv 2>/dev/null)
 
 .PHONY: destroy
 destroy: ## Delete the resource group and everything it contains
