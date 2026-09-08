@@ -18,6 +18,22 @@ foreach ($package in $packages) {
     winget install --id $package --exact --silent --accept-source-agreements --accept-package-agreements
 }
 
+# Ensure make.exe (GnuWin32) is available on PATH for new shells
+$makeBinPath = "C:\Program Files (x86)\GnuWin32\bin"
+if (Test-Path (Join-Path $makeBinPath "make.exe")) {
+    $currentMachinePath = [Environment]::GetEnvironmentVariable("Path", "Machine")
+    if ($currentMachinePath -notlike "*$makeBinPath*") {
+        Write-Host "Adding $makeBinPath to system PATH..." -ForegroundColor Yellow
+        [Environment]::SetEnvironmentVariable("Path", "$currentMachinePath;$makeBinPath", "Machine")
+    }
+    # Make it available in the current session too
+    if ($env:Path -notlike "*$makeBinPath*") {
+        $env:Path += ";$makeBinPath"
+    }
+} else {
+    Write-Warning "make.exe not found at $makeBinPath. Verify the GnuWin32.Make package installed correctly."
+}
+
 # Install VS Code Dev Containers Extension automatically
 Write-Host "Installing VS Code Dev Containers Extension..." -ForegroundColor Green
 code --install-extension ms-vscode-remote.remote-containers
