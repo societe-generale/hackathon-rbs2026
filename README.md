@@ -75,6 +75,10 @@ The Dev Container will automatically:
 
 ```
 hackathon/
+├── infra/                  # Bicep Azure AI Foundry infrastructure
+│   ├── foundry.bicep       # Foundry resource, project, and LLM deployment
+│   ├── main.bicep          # Subscription-scoped deployment entry point
+│   └── main.bicepparam     # Deployment configuration
 ├── .devcontainer/          # Dev container configuration
 │   ├── Dockerfile          # Container image definition
 │   └── devcontainer.json   # VS Code container settings
@@ -85,6 +89,91 @@ hackathon/
 ├── .gitignore             # Git ignore rules
 └── README.md              # This file
 ```
+
+## Azure AI Foundry infrastructure
+
+The Bicep deployment in [`infra/`](./infra/) provisions a Microsoft Foundry
+resource (`Microsoft.CognitiveServices/accounts` with `kind: 'AIServices'`),
+its Foundry project, and one or more LLM deployments. Each deployment name is
+the value applications send as the `model` or deployment identifier.
+
+### Deploying
+
+1. Sign in to Azure and select the target subscription:
+
+   ```bash
+   az login
+   az account set --subscription "<subscription-id-or-name>"
+   ```
+
+2. Update [`infra/main.bicepparam`](./infra/main.bicepparam). Select a region,
+   Foundry resource name, and one or more `modelDeployments` entries with model
+   names and versions available to your Azure subscription. The Foundry resource
+   name must be globally unique.
+
+   ```bicep
+   param modelDeployments = [
+     {
+       deploymentName: 'chat'
+       modelName: 'gpt-4o-mini'
+       modelVersion: '2026-03-17'
+       skuName: 'GlobalStandard'
+       capacity: 1
+     }
+     {
+       deploymentName: 'reasoning'
+       modelName: 'gpt-5.6-terra'
+       modelVersion: '2026-07-09'
+       skuName: 'GlobalStandard'
+       capacity: 1
+     }
+   ]
+   ```
+
+3. Validate and deploy the subscription-scoped template (creates the resource
+   group and all resources in it):
+
+   ```bash
+   make deploy
+   ```
+
+   This is equivalent to running:
+
+   ```bash
+   az bicep build --file infra/main.bicep
+   az deployment sub create \
+     --name foundry-llm \
+     --location swedencentral \
+     --template-file infra/main.bicep \
+     --parameters infra/main.bicepparam
+   ```
+
+   Other useful targets: `make whatif` to preview changes before deploying,
+   `make outputs` to print the endpoint/project/deployment names of the last
+   deployment, and `make destroy` to delete the resource group. Run `make
+   help` to list all targets.
+
+4. Get the endpoint and configure local application variables:
+
+   ```bash
+   az deployment sub show \
+     --name foundry-llm \
+     --query properties.outputs.foundryEndpoint.value --output tsv
+   az deployment sub show \
+     --name foundry-llm \
+       --query properties.outputs.llmDeploymentNames.value --output tsv
+   az cognitiveservices account keys list \
+     --name "<foundry-name>" \
+     --resource-group "<resource-group-name>" \
+     --query key1 --output tsv
+   ```
+
+   Put the resulting values in `.env` as `AZURE_OPENAI_ENDPOINT`,
+   `AZURE_OPENAI_API_KEY`, and the deployment name your app should use as
+   `AZURE_OPENAI_DEPLOYMENT_NAME`. Do not commit the key.
+
+To remove the deployed resources when they are no longer needed, run
+`make destroy` (or `az group delete --name "<resource-group-name>" --yes`).
 
 ## 🛠 Development Workflow
 

@@ -10,8 +10,8 @@ Write-Host "--- Installing Host Dev Infrastructure ---" -ForegroundColor Cyan
 Write-Host "Activation du composant WSL..." -ForegroundColor Yellow
 wsl --install --no-distribution
 
-# Install Git, Docker Desktop, VS Code and Azure Cli
-$packages = @("Git.Git", "Docker.DockerDesktop", "Microsoft.VisualStudioCode", "Microsoft.AzureCLI")
+# Install Git, Docker Desktop, VS Code, Azure CLI and Make
+$packages = @("Git.Git", "Docker.DockerDesktop", "Microsoft.VisualStudioCode", "GnuWin32.Make", "Microsoft.AzureCLI")
 
 foreach ($package in $packages) {
     Write-Host "Installing $package..." -ForegroundColor Yellow
