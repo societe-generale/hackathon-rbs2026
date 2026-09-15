@@ -1,0 +1,13 @@
+{
+  "name": "foundry-starter",
+  "version": "1.0.0",
+  "description": "Simple starter module for Foundry API",
+  "main": "client.js",
+  "type": "module",
+  "scripts": {
+    "start": "node client.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  }
+}
