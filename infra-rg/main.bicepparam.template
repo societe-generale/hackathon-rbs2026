@@ -1,0 +1,42 @@
+using './main.bicep'
+
+// ============================================================================
+// Hackathon Resource Group Parameters (Resource Group Scoped)
+// ============================================================================
+// This template deploys to a PRE-EXISTING resource group
+// Admin creates the RG, teams deploy their infrastructure into it
+
+// Your team identifier (lowercase, 2-12 chars)
+// Must match your assigned resource group: rg-hackathon-rbs2026-<teamname>
+param teamName = 'changeMe'
+
+// Azure region for your resources (should match resource group region)
+param location = 'swedencentral'
+
+// LLM Model Deployments
+param modelDeployments = [
+  {
+    deploymentName: 'chat'
+    modelName: 'gpt-4o-mini'
+    modelVersion: '2026-03-17'
+    skuName: 'GlobalStandard'
+    capacity: 1
+  }
+]
+
+// Optional: Override default resource names (uncomment to customize)
+// param foundryName = 'foundry-rbs2026-${teamName}'
+// param foundryProjectName = 'rbs2026-${teamName}'
+// param storageAccountName = 'st${teamName}...'
+// param cosmosAccountName = 'cosmos-rbs2026-${teamName}'
+// param searchServiceName = 'search-rbs2026-${teamName}'
+
+// Optional: Public network access control
+// param publicNetworkAccess = 'Enabled'  // or 'Disabled' for private endpoints only
+
+// Optional: Custom tags for all resources
+// param tags = {
+//   environment: 'dev'
+//   project: 'hackathon-rbs2026'
+//   team: teamName
+// }
