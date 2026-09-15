@@ -1,0 +1,147 @@
+{
+  "useCases": [
+    {
+      "id": "rag-assistant",
+      "name": "RAG-Powered Assistant",
+      "description": "Build an intelligent assistant that retrieves and augments responses with custom documents",
+      "defaultModels": [
+        {
+          "deploymentName": "chat",
+          "modelName": "gpt-4o-mini",
+          "modelVersion": "2026-03-17",
+          "skuName": "GlobalStandard",
+          "capacity": 1
+        }
+      ],
+      "resources": {
+        "foundry": true,
+        "storage": true,
+        "cosmos": true,
+        "search": true
+      },
+      "documentation": "Use this for Q&A systems that learn from your documents"
+    },
+    {
+      "id": "multi-agent-orchestrator",
+      "name": "Multi-Agent Orchestrator",
+      "description": "Coordinate multiple specialized agents with persistent state and session management",
+      "defaultModels": [
+        {
+          "deploymentName": "orchestrator",
+          "modelName": "gpt-4o",
+          "modelVersion": "2026-03-17",
+          "skuName": "GlobalStandard",
+          "capacity": 2
+        },
+        {
+          "deploymentName": "worker",
+          "modelName": "gpt-4o-mini",
+          "modelVersion": "2026-03-17",
+          "skuName": "GlobalStandard",
+          "capacity": 1
+        }
+      ],
+      "resources": {
+        "foundry": true,
+        "storage": true,
+        "cosmos": true,
+        "search": false
+      },
+      "documentation": "Use this for complex workflows with multiple specialized agents"
+    },
+    {
+      "id": "semantic-search",
+      "name": "Semantic Search Engine",
+      "description": "Build a high-performance search experience with semantic and vector retrieval",
+      "defaultModels": [
+        {
+          "deploymentName": "search",
+          "modelName": "gpt-4o-mini",
+          "modelVersion": "2026-03-17",
+          "skuName": "GlobalStandard",
+          "capacity": 1
+        }
+      ],
+      "resources": {
+        "foundry": true,
+        "storage": true,
+        "cosmos": false,
+        "search": true
+      },
+      "documentation": "Use this for content discovery and retrieval systems"
+    },
+    {
+      "id": "stateful-chatbot",
+      "name": "Stateful Chatbot",
+      "description": "Create a conversational AI with persistent chat history and user context",
+      "defaultModels": [
+        {
+          "deploymentName": "chat",
+          "modelName": "gpt-5.4-mini",
+          "modelVersion": "2026-03-17",
+          "skuName": "GlobalStandard",
+          "capacity": 1
+        }
+      ],
+      "resources": {
+        "foundry": true,
+        "storage": false,
+        "cosmos": true,
+        "search": false
+      },
+      "documentation": "Use this for conversational interfaces with session management"
+    },
+    {
+      "id": "minimal-llm",
+      "name": "Minimal LLM Service",
+      "description": "Get started quickly with just LLM access, no additional storage or retrieval",
+      "defaultModels": [
+        {
+          "deploymentName": "gpt-4o-mini",
+          "modelName": "gpt-4o-mini",
+          "modelVersion": "2026-03-17",
+          "skuName": "GlobalStandard",
+          "capacity": 1
+        }
+      ],
+      "resources": {
+        "foundry": true,
+        "storage": false,
+        "cosmos": false,
+        "search": false
+      },
+      "documentation": "Use this for basic LLM integration and API testing"
+    }
+  ],
+  "regions": [
+    {
+      "id": "swedencentral",
+      "name": "Sweden Central",
+      "availableModels": [
+        "gpt-4o",
+        "gpt-4o-mini",
+        "gpt-5.4-mini",
+        "gpt-5.6-terra"
+      ]
+    },
+    {
+      "id": "westeurope",
+      "name": "West Europe",
+      "availableModels": [
+        "gpt-4o",
+        "gpt-4o-mini",
+        "gpt-5.4-mini"
+      ]
+    },
+    {
+      "id": "eastus",
+      "name": "East US",
+      "availableModels": [
+        "gpt-4o",
+        "gpt-4o-mini",
+        "gpt-5.4-mini",
+        "gpt-5.6-terra"
+      ]
+    }
+  ]
+}

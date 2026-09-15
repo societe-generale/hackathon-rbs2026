@@ -1,19 +1,22 @@
 using './main.bicep'
 
 // ============================================================================
-// Hackathon Resource Group Parameters (Resource Group Scoped)
+// Hackathon Resource Group Parameters
 // ============================================================================
-// This template deploys to a PRE-EXISTING resource group
-// Admin creates the RG, teams deploy their infrastructure into it
+// Copy this file to main-<teamname>.bicepparam and customize for your team
 
-// Your team identifier (lowercase, 2-12 chars)
-// Must match your assigned resource group: rg-hackathon-rbs2026-<teamname>
+// Your team identifier (lowercase, 2-12 chars, no spaces/hyphens)
+// This drives the resource group and resource names
+// Examples: 'panthers', 'team1', 'aiagents'
 param teamName = 'changeMe'
 
-// Azure region for your resources (should match resource group region)
+// Azure region for your resources
+// Options: swedencentral, westeurope, eastus
 param location = 'swedencentral'
 
 // LLM Model Deployments
+// Configure which models your team needs and their capacity
+// Each deployment is accessible via its deploymentName in your app code
 param modelDeployments = [
   {
     deploymentName: 'chat'
@@ -25,6 +28,7 @@ param modelDeployments = [
 ]
 
 // Optional: Override default resource names (uncomment to customize)
+// param resourceGroupName = 'rg-hackathon-rbs2026-${teamName}'
 // param foundryName = 'foundry-rbs2026-${teamName}'
 // param foundryProjectName = 'rbs2026-${teamName}'
 // param storageAccountName = 'st${teamName}...'
@@ -39,4 +43,5 @@ param modelDeployments = [
 //   environment: 'dev'
 //   project: 'hackathon-rbs2026'
 //   team: teamName
+//   costCenter: 'engineering'
 // }

@@ -1,15 +1,12 @@
-targetScope = 'subscription'
+targetScope = 'resourceGroup'
 
-@description('Short team identifier used to compose default resource names (lowercase letters and numbers, keep under ~10 chars). Each team deploys their own resource group by picking a unique teamName.')
+@description('Short team identifier used to compose default resource names (lowercase letters and numbers, keep under ~10 chars).')
 @minLength(2)
 @maxLength(12)
 param teamName string
 
-@description('Azure region in which to create the resource group and all resources.')
+@description('Azure region in which to create resources.')
 param location string = 'swedencentral'
-
-@description('Name of the resource group that will contain every hackathon resource for this team.')
-param resourceGroupName string = 'rg-hackathon-rbs2026-${teamName}'
 
 // --- Azure AI Foundry (LLM) ---------------------------------------------------
 
@@ -45,7 +42,7 @@ param publicNetworkAccess string = 'Enabled'
 @description('Globally unique storage account name (3-24 chars, lowercase letters and numbers only).')
 @minLength(3)
 @maxLength(24)
-param storageAccountName string = 'st${teamName}${substring(uniqueString(subscription().id, teamName), 0, 8)}'
+param storageAccountName string = 'st${teamName}${substring(uniqueString(resourceGroup().id, teamName), 0, 8)}'
 
 // --- Cosmos DB (NoSQL) --------------------------------------------------------
 
@@ -66,17 +63,10 @@ param tags object = {
   team: teamName
 }
 
-// -----------------------------------------------------------------------------
-
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2024-03-01' = {
-  name: resourceGroupName
-  location: location
-  tags: tags
-}
+// Resource group scope - resources are created directly in the pre-existing resource group
 
 module foundry './foundry.bicep' = {
   name: 'foundry'
-  scope: az.resourceGroup(resourceGroupName)
   params: {
     location: location
     foundryName: foundryName
@@ -87,51 +77,35 @@ module foundry './foundry.bicep' = {
     publicNetworkAccess: publicNetworkAccess
     tags: tags
   }
-  dependsOn: [
-    resourceGroup
-  ]
 }
 
 module storage './storage.bicep' = {
   name: 'storage'
-  scope: az.resourceGroup(resourceGroupName)
   params: {
     location: location
     storageAccountName: toLower(storageAccountName)
     tags: tags
   }
-  dependsOn: [
-    resourceGroup
-  ]
 }
 
 module cosmos './cosmos.bicep' = {
   name: 'cosmos'
-  scope: az.resourceGroup(resourceGroupName)
   params: {
     location: location
     cosmosAccountName: cosmosAccountName
     tags: tags
   }
-  dependsOn: [
-    resourceGroup
-  ]
 }
 
 module search './search.bicep' = {
   name: 'search'
-  scope: az.resourceGroup(resourceGroupName)
   params: {
     location: location
     searchServiceName: searchServiceName
     tags: tags
   }
-  dependsOn: [
-    resourceGroup
-  ]
 }
 
-output resourceGroupName string = resourceGroup.name
 output foundryEndpoint string = foundry.outputs.foundryEndpoint
 output foundryProjectName string = foundry.outputs.foundryProjectName
 output llmDeploymentNames array = foundry.outputs.llmDeploymentNames
