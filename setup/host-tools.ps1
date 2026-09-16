@@ -75,4 +75,4 @@ if (Test-Path $wslConfigPath) {
 }
 
 Write-Host "`nHost tools installed! Please restart your computer so PATH changes and Docker are available." -ForegroundColor Green
-Write-Host "After restarting, run: cd starters\python; uv sync --locked" -ForegroundColor Green
+Write-Host "After restarting, run: cd starter; uv sync --locked" -ForegroundColor Green

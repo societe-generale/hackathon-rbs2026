@@ -4,20 +4,19 @@ Simple starter module for connecting to Foundry endpoint in Python.
 
 ## Getting Started
 
-The Python starter folder has the following structure:
+The starter folder has the following structure:
 - `.env.example` - Configuration template
 - Dependencies files (`pyproject.toml`, `uv.lock`)
 - `client.py` - Simple client to query Foundry
 
-The starter uses the `.env` file in the repository root. Create it once
-at `hackathon-rbs2026/.env`; do not create separate `.env` files in the language
-folder.
+The starter uses the `.env` file in this folder. Create it once at
+`hackathon-rbs2026/starter/.env`.
 
 ### Setup Steps for Python
 
 ```bash
-cd python
-# Edit ..\..\.env with your Azure OpenAI endpoint, key, and deployment name
+cd starter
+# Edit .env with your Azure OpenAI endpoint, key, and deployment name
 uv sync
 uv run client.py
 ```

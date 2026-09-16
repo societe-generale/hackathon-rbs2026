@@ -22,7 +22,7 @@ Wait ~30 seconds for the container to start.
 
 ### 3. Run the Python Starter
 ```bash
-cd starters/python
+cd starter
 uv sync --locked
 uv run client.py
 ```
@@ -38,11 +38,10 @@ hackathon-rbs2026/
 ├── README.md                   # This file
 ├── DEPLOYMENT_GUIDE.md         # → Deploy infrastructure to Azure
 ├── ADMIN.md                    # → Admin resource group management
-├── starters/
-│   └── python/
-│       ├── client.py           # Simple Foundry API client
-│       ├── pyproject.toml      # Python dependencies
-│       └── .env.example        # Configuration template
+├── starter/
+│   ├── client.py               # Simple Foundry API client
+│   ├── pyproject.toml          # Python dependencies
+│   └── .env.example            # Configuration template
 ├── infra/                      # Azure infrastructure (Bicep templates)
 │   ├── main.bicep              # Entry point
 │   ├── foundry.bicep           # LLM endpoint
@@ -122,7 +121,7 @@ Once you've set up your development environment, deploy Azure infrastructure to 
 
 ## 📚 Resources
 
-- **[Starters](starters/)** - Example Python client code
+- **[Starter](starter/)** - Example Python client code
 - **[Infrastructure](infra/)** - Bicep templates for Azure resources
 - **[Deployment Guide](DEPLOYMENT_GUIDE.md)** - Infrastructure and deployment instructions
 - **[Admin Guide](ADMIN.md)** - Resource group management (for admins)
@@ -131,12 +130,12 @@ Once you've set up your development environment, deploy Azure infrastructure to 
 
 ## 💡 Tips
 
-**Pro tip 1:** Keep `.env` in the repository root, not in `starters/`. All Python starters share it.
+**Pro tip 1:** Keep `.env` in `starter/` with the Python starter files.
 
 **Pro tip 2:** Use the Python starter as a reference. Extend it for your use case:
 ```python
 from openai import AzureOpenAI
-# See starters/python/client.py for the full example
+# See starter/client.py for the full example
 ```
 
 **Pro tip 3:** Check `.devcontainer/devcontainer.json` to customize your environment (VS Code extensions, environment variables, etc.).
