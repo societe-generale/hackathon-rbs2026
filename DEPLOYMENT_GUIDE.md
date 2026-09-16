@@ -1,73 +1,29 @@
-# Hackathon Resource Group Deployment Guide
+# Deployment Guide: Azure Infrastructure
 
-This guide explains how to deploy your team's resource group for the hackathon. Each team gets their own Azure resource group with pre-configured infrastructure optimized for their use case.
+Deploy your team's infrastructure to build AI applications. Each team gets their own Azure resource group with preconfigured services.
 
-## Quick Start (5 minutes)
+**For admins?** See [ADMIN.md](ADMIN.md) for resource group management and cost monitoring.
 
-### Option 1: Interactive Deployment Script (Recommended)
+---
 
-The easiest way to deploy is using the interactive script that guides you through the process.
+## ⚡ Quick Start (3 steps)
 
-#### On Linux/macOS or in Dev Container:
+### Step 1: Prerequisites
 ```bash
-cd infra
-bash deploy.sh
-```
-
-#### On Windows (in PowerShell or Command Prompt):
-```bash
-cd infra
-deploy.bat
-```
-
-The script will:
-1. ✅ Check prerequisites (Azure CLI, jq)
-2. ✅ Verify you're logged into Azure
-3. ✅ Guide you to select your use case
-4. ✅ Guide you to select your region
-5. ✅ Create a parameter file for your team
-6. ✅ Validate the deployment
-7. ✅ Deploy your infrastructure
-8. ✅ Display your resource endpoints
-
-## Manual Deployment (if you prefer)
-
-### Prerequisites
-
-```bash
-# Install Azure CLI
-# https://learn.microsoft.com/en-us/cli/azure/install-azure-cli
-
-# Login to Azure
+# Install Azure CLI: https://aka.ms/azure-cli
 az login
-
-# Select your subscription
-az account set --subscription "<subscription-id-or-name>"
+az account set --subscription "<your-subscription-id>"
 ```
 
-### Step 1: Choose Your Use Case
+### Step 2: Create Parameter File
+```bash
+cp infra/main.bicepparam infra/main-<teamname>.bicepparam
+```
 
-Select from these pre-configured options:
-
-| Use Case | Best For | Resources |
-|----------|----------|-----------|
-| **RAG-Powered Assistant** | Q&A systems that learn from your documents | Foundry, Storage, Cosmos, Search |
-| **Multi-Agent Orchestrator** | Complex workflows with multiple specialized agents | Foundry, Storage, Cosmos |
-| **Semantic Search Engine** | Content discovery and retrieval systems | Foundry, Storage, Search |
-| **Stateful Chatbot** | Conversational AI with session management | Foundry, Cosmos |
-| **Minimal LLM Service** | Basic LLM integration and API testing | Foundry only |
-
-### Step 2: Create Your Parameter File
-
-Create a file `infra/main-<teamname>.bicepparam`:
-
+Edit `infra/main-<teamname>.bicepparam`:
 ```bicep
-using './main.bicep'
-
-param teamName = 'panthers'          // Your team name (lowercase, 2-12 chars)
-param location = 'swedencentral'     // Azure region
-
-// Use case-specific model configuration
+param teamName = 'panthers'        # Your team name (lowercase, 2-12 chars)
+param location = 'swedencentral'   # Region: swedencentral, westeurope, eastus
 param modelDeployments = [
   {
     deploymentName: 'chat'
@@ -79,59 +35,76 @@ param modelDeployments = [
 ]
 ```
 
-### Step 3: Validate Your Deployment
-
+### Step 3: Deploy
 ```bash
-# Preview what will be deployed
-az deployment sub what-if \
-  --name hackathon-rbs2026-<teamname> \
-  --location swedencentral \
-  --template-file infra/main.bicep \
-  --parameters infra/main-<teamname>.bicepparam
+make deploy TEAM=panthers
+# Or manually:
+cd infra
+bash deploy.sh  # Linux/Mac
+deploy.bat      # Windows
 ```
 
-### Step 4: Deploy
+**Expected time:** 2 min setup + 5-15 min deployment
 
-```bash
-# Deploy your resource group and all resources
-az deployment sub create \
-  --name hackathon-rbs2026-<teamname> \
-  --location swedencentral \
-  --template-file infra/main.bicep \
-  --parameters infra/main-<teamname>.bicepparam
-```
+---
 
-This will take 5-15 minutes depending on the complexity of your use case.
+## 📊 Use Cases at a Glance
 
-### Step 5: Get Your Outputs
+Choose the resources you need:
 
-```bash
-# Display your deployment endpoints
-az deployment sub show \
-  --name hackathon-rbs2026-<teamname> \
-  --query properties.outputs \
-  --output json
-```
+| Use Case | Best For | Foundry | Storage | Cosmos | Search |
+|----------|----------|---------|---------|--------|--------|
+| **RAG Assistant** | Q&A from your documents | ✅ | ✅ | ✅ | ✅ |
+| **Multi-Agent Orchestrator** | Complex workflows | ✅ | ✅ | ✅ | — |
+| **Semantic Search** | Content discovery | ✅ | ✅ | — | ✅ |
+| **Stateful Chatbot** | Conversational AI | ✅ | — | ✅ | — |
+| **Minimal LLM** | Quick prototyping | ✅ | — | — | — |
+
+---
+
+## 🏗️ Infrastructure Components
+
+### Azure AI Foundry
+LLM endpoint for your applications. Deploy one or more models:
+- `gpt-4o` - Best quality, complex reasoning
+- `gpt-4o-mini` - General purpose, cost-effective
+- `gpt-5.4-mini` - Fast, optimized for chatbots
+- `gpt-5.6-terra` - Latest features, cutting edge
+
+### Storage Account
+Blob storage for documents and artifacts. Includes a `documents` container for RAG pipelines.
+
+### Cosmos DB
+NoSQL database (serverless, on-demand pricing). Comes with:
+- `agent` container - Store agent state
+- `sessions` container - Store chat history and context
+
+### Azure AI Search
+Vector + semantic search. Optimized for hybrid retrieval over your documents.
+
+---
+
+## 📋 Available Regions & Models
+
+| Region | Code | Models |
+|--------|------|--------|
+| Sweden Central | `swedencentral` | gpt-4o, gpt-4o-mini, gpt-5.4-mini, gpt-5.6-terra |
+| West Europe | `westeurope` | gpt-4o, gpt-4o-mini, gpt-5.4-mini |
+| East US | `eastus` | gpt-4o, gpt-4o-mini, gpt-5.4-mini, gpt-5.6-terra |
+
+Choose based on latency requirements and model availability.
+
+---
 
 ## Use Case Details
 
-### 1. RAG-Powered Assistant
+### RAG-Powered Assistant
+Build intelligent Q&A systems that learn from your documents.
 
-**Best for:** Building intelligent Q&A systems that can learn from your documents.
+**Resources:** Foundry, Storage, Cosmos, Search
 
-**Includes:**
-- **Azure AI Foundry**: GPT-4o-mini deployment for LLM access
-- **Storage Account**: Blob storage for your documents
-- **Cosmos DB**: Store chat history and context
-- **Azure AI Search**: Vector + semantic search for document retrieval
-
-**Example:** Customer support bot that answers questions based on product documentation
-
-**Deployment:**
-```bash
-# Edit infra/main-<teamname>.bicepparam
-param teamName = 'panthers'
-param location = 'swedencentral'
+**Deploy:**
+```bicep
 param modelDeployments = [
   {
     deploymentName: 'chat'
@@ -143,22 +116,13 @@ param modelDeployments = [
 ]
 ```
 
-### 2. Multi-Agent Orchestrator
+### Multi-Agent Orchestrator
+Complex workflows where multiple specialized agents work together.
 
-**Best for:** Complex workflows where multiple specialized agents work together.
+**Resources:** Foundry (2 deployments), Storage, Cosmos
 
-**Includes:**
-- **Azure AI Foundry**: GPT-4o (orchestrator) + GPT-4o-mini (workers)
-- **Storage Account**: Store artifacts and intermediate results
-- **Cosmos DB**: Persist agent state and conversation history
-- **No Search**: Use your own retrieval logic
-
-**Example:** Investment analysis system with research, analysis, and recommendation agents
-
-**Deployment:**
-```bash
-param teamName = 'tigers'
-param location = 'swedencentral'
+**Deploy:**
+```bicep
 param modelDeployments = [
   {
     deploymentName: 'orchestrator'
@@ -177,269 +141,277 @@ param modelDeployments = [
 ]
 ```
 
-### 3. Semantic Search Engine
+### Semantic Search Engine
+High-performance content discovery and retrieval.
 
-**Best for:** Building high-performance content discovery and retrieval systems.
+**Resources:** Foundry, Storage, Search
 
-**Includes:**
-- **Azure AI Foundry**: LLM for query understanding
-- **Storage Account**: Store your content corpus
-- **Azure AI Search**: Optimized for vector + semantic retrieval
-- **No Cosmos**: Data is ephemeral (no session state needed)
+### Stateful Chatbot
+Conversational AI with session memory and context.
 
-**Example:** Product recommendation engine, document library search
+**Resources:** Foundry, Cosmos (no document storage needed)
 
-**Deployment:**
-```bash
-param teamName = 'eagles'
-param location = 'swedencentral'
-param modelDeployments = [
-  {
-    deploymentName: 'search'
-    modelName: 'gpt-4o-mini'
-    modelVersion: '2026-03-17'
-    skuName: 'GlobalStandard'
-    capacity: 1
-  }
-]
-```
+### Minimal LLM Service
+Quick prototyping and testing with just LLM access.
 
-### 4. Stateful Chatbot
+**Resources:** Foundry only (minimal cost)
 
-**Best for:** Creating conversational interfaces with session and context awareness.
+---
 
-**Includes:**
-- **Azure AI Foundry**: GPT-5.4-mini for faster responses
-- **Cosmos DB**: Persistent chat history and user context
-- **No Storage**: Chat-only, no document uploads
-- **No Search**: No retrieval needed
-
-**Example:** Personal assistant, customer service chatbot with memory
-
-**Deployment:**
-```bash
-param teamName = 'lions'
-param location = 'swedencentral'
-param modelDeployments = [
-  {
-    deploymentName: 'chat'
-    modelName: 'gpt-5.4-mini'
-    modelVersion: '2026-03-17'
-    skuName: 'GlobalStandard'
-    capacity: 1
-  }
-]
-```
-
-### 5. Minimal LLM Service
-
-**Best for:** Getting started quickly with just LLM access for testing and prototyping.
-
-**Includes:**
-- **Azure AI Foundry**: GPT-4o-mini deployment
-- **No additional resources**: Keep costs minimal
-
-**Example:** Proof of concept, API testing, learning
-
-**Deployment:**
-```bash
-param teamName = 'hawks'
-param location = 'swedencentral'
-param modelDeployments = [
-  {
-    deploymentName: 'gpt-4o-mini'
-    modelName: 'gpt-4o-mini'
-    modelVersion: '2026-03-17'
-    skuName: 'GlobalStandard'
-    capacity: 1
-  }
-]
-```
-
-## Available Regions
-
-Choose based on your location and latency requirements:
-
-| Region | Code | Available Models |
-|--------|------|------------------|
-| Sweden Central | `swedencentral` | gpt-4o, gpt-4o-mini, gpt-5.4-mini, gpt-5.6-terra |
-| West Europe | `westeurope` | gpt-4o, gpt-4o-mini, gpt-5.4-mini |
-| East US | `eastus` | gpt-4o, gpt-4o-mini, gpt-5.4-mini, gpt-5.6-terra |
-
-## Available Models
-
-All models are available through Azure OpenAI deployments:
-
-| Model | Version | Best For | Performance |
-|-------|---------|----------|-------------|
-| `gpt-4o` | 2026-03-17 | Complex reasoning, multi-step tasks | Highest quality |
-| `gpt-4o-mini` | 2026-03-17 | General purpose, cost-effective | Good balance |
-| `gpt-5.4-mini` | 2026-03-17 | Chatbots, fast responses | Fast + capable |
-| `gpt-5.6-terra` | 2026-07-09 | Latest features, advanced tasks | Cutting edge |
-
-## After Deployment
+## ✅ After Deployment
 
 ### 1. Get Your Endpoints
-
 ```bash
-# Get all deployment outputs
-DEPLOYMENT_NAME="hackathon-rbs2026-<teamname>"
-az deployment sub show --name $DEPLOYMENT_NAME --query properties.outputs --output json
+make deploy-outputs TEAM=panthers
+# Or manually:
+az deployment sub show --name "hackathon-rbs2026-panthers" \
+  --query properties.outputs --output json
 ```
 
-### 2. Configure Your Application
+### 2. Get API Keys
+```bash
+# Foundry key
+az cognitiveservices account keys list \
+  --name "foundry-rbs2026-panthers" \
+  --resource-group "rg-hackathon-rbs2026-panthers" \
+  --query key1 --output tsv
 
-Create a `.env` file in your application root:
+# Search key (if using)
+az search admin-key show \
+  --resource-group "rg-hackathon-rbs2026-panthers" \
+  --service-name "search-rbs2026-panthers"
+
+# Storage connection string (if using)
+az storage account show-connection-string \
+  --name "st<teamname><hash>" \
+  --resource-group "rg-hackathon-rbs2026-panthers"
+```
+
+### 3. Configure Your Application
+Create `.env` in your application root:
 
 ```env
-# Azure AI Foundry
-AZURE_OPENAI_ENDPOINT=https://foundry-rbs2026-<teamname>.openai.azure.com/
+# Required
+AZURE_OPENAI_ENDPOINT=https://foundry-rbs2026-panthers.openai.azure.com/
 AZURE_OPENAI_API_KEY=<your-key>
 AZURE_OPENAI_DEPLOYMENT_NAME=chat
+AZURE_OPENAI_API_VERSION=2025-04-01-preview
 
-# Storage
-AZURE_STORAGE_ACCOUNT_NAME=st<teamname><hash>
-AZURE_STORAGE_CONTAINER_NAME=documents
+# Optional (if using Storage)
+AZURE_STORAGE_ACCOUNT=st<teamname><hash>
+AZURE_STORAGE_CONTAINER=documents
 
-# Cosmos DB (if using)
+# Optional (if using Cosmos)
 AZURE_COSMOS_CONNECTION_STRING=<connection-string>
 
-# Azure AI Search (if using)
-AZURE_SEARCH_ENDPOINT=https://search-rbs2026-<teamname>.search.windows.net/
+# Optional (if using Search)
+AZURE_SEARCH_ENDPOINT=https://search-rbs2026-panthers.search.windows.net/
 AZURE_SEARCH_API_KEY=<search-key>
 ```
 
-### 3. Get API Keys
-
-```bash
-# Azure AI Foundry API key
-az cognitiveservices account keys list \
-  --name "foundry-rbs2026-<teamname>" \
-  --resource-group "rg-hackathon-rbs2026-<teamname>" \
-  --query key1 --output tsv
-
-# Storage account connection string
-az storage account show-connection-string \
-  --name "st<teamname><hash>" \
-  --resource-group "rg-hackathon-rbs2026-<teamname>"
-
-# Azure AI Search API key
-az search admin-key show \
-  --resource-group "rg-hackathon-rbs2026-<teamname>" \
-  --service-name "search-rbs2026-<teamname>"
-```
-
 ### 4. Start Building
+Use the Python starter as a reference:
 
-Use the starter code in `starters/` directory:
-- `starters/python/` - Python client
+```python
+from openai import AzureOpenAI
 
-## Cleanup
+client = AzureOpenAI(
+    api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+    api_version="2025-04-01-preview",
+    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
+)
 
-When you're done, delete your resource group:
+response = client.chat.completions.create(
+    model="chat",  # deployment name
+    messages=[
+        {"role": "system", "content": "You are helpful"},
+        {"role": "user", "content": "Hello!"}
+    ]
+)
+print(response.choices[0].message.content)
+```
 
+---
+
+## 🎯 Customization
+
+### Multi-Model Deployment
+Deploy multiple models at once:
+
+```bicep
+param modelDeployments = [
+  {
+    deploymentName: 'orchestrator'
+    modelName: 'gpt-4o'
+    modelVersion: '2026-03-17'
+    skuName: 'GlobalStandard'
+    capacity: 2
+  }
+  {
+    deploymentName: 'worker'
+    modelName: 'gpt-4o-mini'
+    modelVersion: '2026-03-17'
+    skuName: 'GlobalStandard'
+    capacity: 1
+  }
+]
+```
+
+Then call different deployments:
+```python
+# Use orchestrator
+response = client.chat.completions.create(
+    model="orchestrator",  # different deployment
+    messages=[...]
+)
+```
+
+### Custom Resource Names
+Edit parameter file:
+
+```bicep
+param foundryName = 'my-custom-foundry'
+param storageAccountName = 'mystorageaccount'
+param cosmosAccountName = 'my-cosmos'
+param searchServiceName = 'my-search'
+```
+
+### Custom Tags
+```bicep
+param tags = {
+  environment: 'dev'
+  project: 'hackathon-rbs2026'
+  team: teamName
+  owner: 'your-email@company.com'
+}
+```
+
+---
+
+## 🔧 Commands Reference
+
+### Deploy
 ```bash
+# Create/update infrastructure
+make deploy TEAM=panthers
+
+# Preview what will change
+make deploy-validate TEAM=panthers
+
+# Get deployment endpoints
+make deploy-outputs TEAM=panthers
+
 # Delete everything
-az group delete \
-  --name "rg-hackathon-rbs2026-<teamname>" \
-  --yes
+make deploy-destroy TEAM=panthers
 ```
 
-Or use the Makefile:
+### Manual Deployment
 ```bash
-DEPLOYMENT_NAME="hackathon-rbs2026-<teamname>" make destroy
+# Validate
+az deployment sub what-if \
+  --name hackathon-rbs2026-panthers \
+  --location swedencentral \
+  --template-file infra/main.bicep \
+  --parameters infra/main-panthers.bicepparam
+
+# Deploy
+az deployment sub create \
+  --name hackathon-rbs2026-panthers \
+  --location swedencentral \
+  --template-file infra/main.bicep \
+  --parameters infra/main-panthers.bicepparam
+
+# Get outputs
+az deployment sub show \
+  --name hackathon-rbs2026-panthers \
+  --query properties.outputs --output json
 ```
 
-## Troubleshooting
+---
+
+## ❌ Troubleshooting
 
 ### Deployment fails with "Quota exceeded"
+**Solution:** Your subscription hit quota limits. Contact the hackathon organizers.
 
-**Solution:** Your subscription may have reached quota limits. Contact the hackathon organizers.
-
-### Cannot find resource after deployment
-
-**Solution:** Ensure you're using the correct resource group name:
+### "Deployment fails with authentication error"
+**Solution:** Ensure you're logged in and have the right subscription:
 ```bash
-az group list --output table | grep hackathon
+az login
+az account show  # Check subscription
+az account set --subscription "<id>"
 ```
 
-### API key authentication fails
-
-**Solution:** Make sure you're using the correct endpoint and key:
+### Deployment is stuck for >30 minutes
+**Solution:** Check status:
 ```bash
-# Verify endpoint
-az deployment sub show --name "hackathon-rbs2026-<teamname>" \
-  --query properties.outputs.foundryEndpoint.value
-
-# Get fresh key
-az cognitiveservices account keys list \
-  --name "foundry-rbs2026-<teamname>" \
-  --resource-group "rg-hackathon-rbs2026-<teamname>"
-```
-
-### Deployment takes too long
-
-**Normal:** First deployment can take 5-15 minutes. Don't cancel it.
-
-**Stuck:** If it's been >30 minutes, check the status:
-```bash
-az deployment sub show --name "hackathon-rbs2026-<teamname>" \
+az deployment sub show --name "hackathon-rbs2026-panthers" \
   --query properties.provisioningState
 ```
 
-## Getting Help
+Normal deployments complete in 5-15 minutes. If stuck, cancel and retry:
+```bash
+# Stop deployment
+az deployment sub cancel --name "hackathon-rbs2026-panthers"
+```
 
-1. **Check this guide** - Most issues are covered above
-2. **Check Azure CLI docs** - `az --help` or online
-3. **Contact organizers** - Slack/email with your team name and error
+### "Resource group not found"
+**Solution:** List your resource groups:
+```bash
+az group list --query "[?contains(name, 'hackathon')].name" --output table
+```
 
-## Team Naming Convention
+Make sure your `teamName` in the parameter file matches your resource group.
 
-Team names must be:
-- ✅ Lowercase letters and numbers only
-- ✅ 2-12 characters long
-- ❌ No spaces, underscores, or hyphens
-- ❌ No uppercase letters
+### Parameter validation fails
+**Solution:** Check your `.bicepparam` file:
+- `teamName`: lowercase, 2-12 characters
+- `location`: `swedencentral`, `westeurope`, or `eastus`
+- `modelDeployments`: valid JSON/Bicep array syntax
 
-**Examples:**
-- `panthers` ✅
-- `team1` ✅
-- `rai-team` ❌ (hyphens not allowed)
-- `RAI_TEAM` ❌ (uppercase not allowed)
-- `a` ❌ (too short)
-- `verylongteamnamethatistoolong` ❌ (too long)
+---
 
-## Cost Estimation
+## 🗑️ Cleanup
 
-Approximate monthly costs for each use case (minimum):
+When you're done:
 
-| Use Case | Foundry | Storage | Cosmos | Search | Total |
-|----------|---------|---------|--------|--------|-------|
-| RAG Assistant | $5 | $1 | $2 | $5 | ~$13 |
-| Multi-Agent | $10 | $1 | $2 | — | ~$13 |
-| Semantic Search | $5 | $1 | — | $5 | ~$11 |
-| Chatbot | $5 | — | $2 | — | ~$7 |
-| Minimal LLM | $5 | — | — | — | ~$5 |
+```bash
+# Delete your resource group (one command)
+make deploy-destroy TEAM=panthers
 
-*Note: Costs are approximate and will vary based on actual usage and request volume. Prices are per-region and per-tier.*
+# Or manually
+az group delete --name "rg-hackathon-rbs2026-panthers" --yes
+```
 
-## Need a Different Configuration?
+---
 
-If none of the predefined use cases match your needs:
+## 🔐 Cost Estimation
 
-1. Create a custom parameter file: `infra/main-<teamname>.bicepparam`
-2. Include any combination of:
-   - `foundry.bicep` - Always included
-   - `storage.bicep` - For document/artifact storage
-   - `cosmos.bicep` - For session/state persistence
-   - `search.bicep` - For vector/semantic retrieval
+Approximate monthly costs per team (light usage):
 
-3. Deploy as normal
+| Use Case | Cost |
+|----------|------|
+| RAG Assistant | ~$13 |
+| Multi-Agent | ~$13 |
+| Semantic Search | ~$11 |
+| Chatbot | ~$7 |
+| Minimal LLM | ~$5 |
 
-## More Information
+*Actual costs depend on usage patterns and request volume. See [Azure pricing](https://azure.microsoft.com/pricing/) for details.*
 
-- [Hackathon Project README](../README.md)
-- [Azure Bicep Documentation](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/)
-- [Azure OpenAI Documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai/)
-- [Azure AI Search Documentation](https://learn.microsoft.com/en-us/azure/search/)
-- [Azure Cosmos DB Documentation](https://learn.microsoft.com/en-us/azure/cosmos-db/)
+---
+
+## 📞 Need Help?
+
+1. **Check this guide's Troubleshooting section** - Most issues are covered
+2. **Check the deployment logs** - `make deploy TEAM=panthers` shows detailed output
+3. **For advanced issues** - Contact admins (see [ADMIN.md](ADMIN.md))
+4. **For developer questions** - See [README.md](README.md)
+
+---
+
+## 🚀 Next Steps
+
+- ✅ Deployed infrastructure
+- 👉 **Next:** Go to [README.md](README.md) and run the Python starter to start building
+- 🏆 Build your AI application during the hackathon
