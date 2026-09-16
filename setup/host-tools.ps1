@@ -10,8 +10,16 @@ Write-Host "--- Installing Host Dev Infrastructure ---" -ForegroundColor Cyan
 Write-Host "Activation du composant WSL..." -ForegroundColor Yellow
 wsl --install --no-distribution
 
-# Install Git, Docker Desktop, VS Code, Azure CLI and Make
-$packages = @("Git.Git", "Docker.DockerDesktop", "Microsoft.VisualStudioCode", "GnuWin32.Make", "Microsoft.AzureCLI")
+# Install Git, Docker Desktop, VS Code, Azure CLI, Make, Python and uv
+$packages = @(
+    "Git.Git",
+    "Docker.DockerDesktop",
+    "Microsoft.VisualStudioCode",
+    "GnuWin32.Make",
+    "Microsoft.AzureCLI",
+    "Python.Python.3.12",
+    "astral-sh.uv"
+)
 
 foreach ($package in $packages) {
     Write-Host "Installing $package..." -ForegroundColor Yellow
@@ -39,6 +47,9 @@ Write-Host "Installing VS Code Dev Containers Extension..." -ForegroundColor Gre
 code --install-extension ms-vscode-remote.remote-containers
 # Installation de l'extension Docker / Container Tools (gestion des images, conteneurs, logs)
 code --install-extension ms-azuretools.vscode-docker
+# Install Python tooling for the starter and local development.
+code --install-extension ms-python.python
+code --install-extension ms-python.vscode-pylance
 
 # 1. Ensure .wslconfig exists with enough RAM to prevent 'No space left on device' errors
 $wslConfigPath = "$env:USERPROFILE\.wslconfig"
@@ -63,4 +74,5 @@ if (Test-Path $wslConfigPath) {
     Set-Content -Path $wslConfigPath -Value $wslConfigContent
 }
 
-Write-Host "`nHost environment ready! Please restart your computer to start Docker daemon." -ForegroundColor Green
+Write-Host "`nHost tools installed! Please restart your computer so PATH changes and Docker are available." -ForegroundColor Green
+Write-Host "After restarting, run: cd starters\python; uv sync --locked" -ForegroundColor Green

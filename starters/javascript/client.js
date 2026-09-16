@@ -1,24 +1,34 @@
 import dotenv from 'dotenv';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-dotenv.config();
+const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+dotenv.config({ path: path.join(workspaceRoot, '.env') });
 
 class FoundryClient {
   constructor() {
-    this.apiKey = process.env.FOUNDRY_API_KEY;
-    this.endpoint = process.env.FOUNDRY_ENDPOINT;
+    this.apiKey = process.env.AZURE_OPENAI_API_KEY;
+    const configuredEndpoint = (process.env.AZURE_OPENAI_ENDPOINT || '').replace(/\/$/, '');
+    this.endpoint = configuredEndpoint.includes('/api/projects/')
+      ? configuredEndpoint.split('/api/projects/')[0] + '/openai/v1'
+      : configuredEndpoint.endsWith('/openai/v1')
+        ? configuredEndpoint
+        : `${configuredEndpoint}/openai/v1`;
+    this.deploymentName = process.env.AZURE_OPENAI_DEPLOYMENT_NAME;
 
-    if (!this.apiKey || !this.endpoint) {
-      throw new Error('FOUNDRY_API_KEY and FOUNDRY_ENDPOINT must be set in .env file');
+    if (!this.apiKey || !configuredEndpoint || !this.deploymentName) {
+      throw new Error('AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, and AZURE_OPENAI_DEPLOYMENT_NAME must be set in .env file');
     }
   }
 
   async query(systemPrompt, query) {
     const payload = {
-      system_prompt: systemPrompt,
-      query: query
+      model: this.deploymentName,
+      instructions: systemPrompt,
+      input: query
     };
 
-    const response = await fetch(`${this.endpoint}/query`, {
+    const response = await fetch(`${this.endpoint}/responses`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${this.apiKey}`,
@@ -28,11 +38,15 @@ class FoundryClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API Error: ${response.statusText}`);
+      throw new Error(`API Error ${response.status}: ${await response.text()}`);
     }
 
     const data = await response.json();
-    return data.answer;
+    return data.output
+      .flatMap(item => item.content || [])
+      .filter(content => content.type === 'output_text')
+      .map(content => content.text)
+      .join('');
   }
 }
 

@@ -25,6 +25,7 @@ A Python development project with containerized development environment support.
    - Install WSL 2
    - Install Docker Desktop
    - Install Git
+   - Install Python 3.12 and uv
    - Install VS Code and required extensions (Dev Containers, Docker)
    - Configure WSL 2 memory settings
 
@@ -37,7 +38,14 @@ A Python development project with containerized development environment support.
    code .
    ```
 
-4. **Open in Dev Container**:
+4. **Set up the Python starter after restarting**:
+   ```powershell
+   cd starters\python
+   uv sync --locked
+   uv run client.py
+   ```
+
+5. **Open in Dev Container**:
    - VS Code will prompt you to "Reopen in Container"
    - Click the button or use `Ctrl+Shift+P` → "Dev Containers: Reopen in Container"
 

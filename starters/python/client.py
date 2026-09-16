@@ -1,32 +1,42 @@
 import os
-import requests
+from pathlib import Path
 from dotenv import load_dotenv
+from openai import OpenAI
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parents[2] / '.env')
 
 class FoundryClient:
     def __init__(self):
-        self.api_key = os.getenv('FOUNDRY_API_KEY')
-        self.endpoint = os.getenv('FOUNDRY_ENDPOINT')
+        self.api_key = os.getenv('AZURE_OPENAI_API_KEY')
+        configured_endpoint = os.getenv('AZURE_OPENAI_ENDPOINT', '').rstrip('/')
+        if '/api/projects/' in configured_endpoint:
+            configured_endpoint = configured_endpoint.split('/api/projects/', 1)[0]
+        self.endpoint = (
+            configured_endpoint
+            if configured_endpoint.endswith('/openai/v1')
+            else f'{configured_endpoint}/openai/v1'
+        )
+        self.deployment_name = os.getenv('AZURE_OPENAI_DEPLOYMENT_NAME')
 
-        if not self.api_key or not self.endpoint:
-            raise ValueError('FOUNDRY_API_KEY and FOUNDRY_ENDPOINT must be set in .env file')
+        if not self.api_key or not self.endpoint or not self.deployment_name:
+            raise ValueError(
+                'AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, and '
+                'AZURE_OPENAI_DEPLOYMENT_NAME must be set in .env file'
+            )
+
+        self.client = OpenAI(
+            base_url=self.endpoint,
+            api_key=self.api_key,
+        )
 
     def query(self, system_prompt: str, query: str) -> str:
-        headers = {
-            'Authorization': f'Bearer {self.api_key}',
-            'Content-Type': 'application/json'
-        }
+        response = self.client.responses.create(
+            model=self.deployment_name,
+            instructions=system_prompt,
+            input=query,
+        )
 
-        payload = {
-            'system_prompt': system_prompt,
-            'query': query
-        }
-
-        response = requests.post(f'{self.endpoint}/query', json=payload, headers=headers)
-        response.raise_for_status()
-
-        return response.json().get('answer', '')
+        return response.output_text
 
 
 if __name__ == '__main__':
