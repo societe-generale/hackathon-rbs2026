@@ -1,21 +1,20 @@
 # Foundry Starter Module
 
-Simple starter modules for connecting to Foundry endpoint in Python, Java, and JavaScript.
+Simple starter module for connecting to Foundry endpoint in Python.
 
 ## Getting Started
 
-Each language folder has the same structure:
+The Python starter folder has the following structure:
 - `.env.example` - Configuration template
-- Language-specific dependencies/build files
-- `client.py` / `FoundryClient.java` / `client.js` - Simple client to query Foundry
+- Dependencies files (`pyproject.toml`, `uv.lock`)
+- `client.py` - Simple client to query Foundry
 
-All three starters share one `.env` file in the repository root. Create it once
+The starter uses the `.env` file in the repository root. Create it once
 at `hackathon-rbs2026/.env`; do not create separate `.env` files in the language
-folders.
+folder.
 
-### Setup Steps for Each Language
+### Setup Steps for Python
 
-#### Python
 ```bash
 cd python
 # Edit ..\..\.env with your Azure OpenAI endpoint, key, and deployment name
@@ -25,22 +24,6 @@ uv run client.py
 
 On Windows, run `setup\install-host.bat` from the repository root first and restart
 your computer. Then run the commands above; `uv sync` creates the local environment.
-
-#### Java
-```bash
-cd java
-# Edit ..\..\.env with your Azure OpenAI endpoint, key, and deployment name
-mvn compile
-mvn exec:java -Dexec.mainClass="FoundryClient"
-```
-
-#### JavaScript/Node.js
-```bash
-cd javascript
-# Edit ..\..\.env with your Azure OpenAI endpoint, key, and deployment name
-npm install
-npm start
-```
 
 ## Configuration
 

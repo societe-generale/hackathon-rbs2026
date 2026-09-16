@@ -333,8 +333,6 @@ az search admin-key show \
 
 Use the starter code in `starters/` directory:
 - `starters/python/` - Python client
-- `starters/javascript/` - Node.js client
-- `starters/java/` - Java client
 
 ## Cleanup
 

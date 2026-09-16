@@ -155,4 +155,4 @@ All available in swedencentral and eastus. Check Azure docs for regional availab
 
 - `DEPLOYMENT_GUIDE.md` - Detailed deployment guide
 - `ORGANIZER_GUIDE.md` - For hackathon coordinators  
-- `starters/` - Example code in Python, JavaScript, Java
+- `starters/` - Example code in Python

@@ -176,8 +176,6 @@ az storage account show-connection-string \
 
 See example starters:
 - `starters/python/` - Python client
-- `starters/javascript/` - JavaScript/Node.js
-- `starters/java/` - Java client
 
 ## Customization
 

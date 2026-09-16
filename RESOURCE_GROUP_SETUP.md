@@ -133,8 +133,6 @@ AZURE_SEARCH_API_KEY=<search-key>
 ### 3. Start Building
 Example starter code available in:
 - `starters/python/` - Python client
-- `starters/javascript/` - JavaScript/Node.js client
-- `starters/java/` - Java client
 
 ### 4. Cleanup
 ```bash
@@ -369,9 +367,7 @@ hackathon-rbs2026/
 │   ├── cosmos.bicep               # Cosmos DB module
 │   └── search.bicep               # Azure AI Search module
 └── starters/
-    ├── python/                    # Python starter code
-    ├── javascript/                # JavaScript starter code
-    └── java/                      # Java starter code
+    └── python/                    # Python starter code
 ```
 
 ---

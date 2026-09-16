@@ -274,7 +274,7 @@ Resource Group: rg-hackathon-rbs2026-<teamname>
 
 3. Start coding!
 
-Need help? Check starters/ for example code in Python, JavaScript, or Java
+Need help? Check starters/ for example code in Python
 ```
 
 ## Monitoring Dashboard (Optional)
