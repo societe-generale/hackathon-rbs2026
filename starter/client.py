@@ -40,9 +40,12 @@ class FoundryClient:
             tools=TOOLS,
         )
 
-        tool_outputs = []
-        for item in response.output:
-            if item.type == 'function_call' and item.name == 'add_numbers':
+        while True:
+            tool_outputs = []
+            for item in response.output:
+                if item.type != 'function_call':
+                    continue
+
                 print(
                     'Tool call metadata:',
                     json.dumps(
@@ -61,9 +64,12 @@ class FoundryClient:
                     'output': execute_tool(item.name, item.arguments),
                 })
 
-        if tool_outputs:
+            if not tool_outputs:
+                break
+
             response = self.client.responses.create(
                 model=self.deployment_name,
+                instructions=system_prompt,
                 previous_response_id=response.id,
                 input=tool_outputs,
                 tools=TOOLS,

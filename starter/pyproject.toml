@@ -1,7 +1,7 @@
 [project]
-name = "foundry-starter"
+name = "hackathon-starter"
 version = "1.0.0"
-description = "Simple starter module for Foundry API"
+description = "Simple starter module for hackathon"
 requires-python = ">=3.8"
 dependencies = [
     "openai>=1.0.0",
