@@ -1,0 +1,211 @@
+{
+  "metadata": {
+    "dataset": "creditme_ppi_stock_mock",
+    "version": "1.0",
+    "synthetic": true,
+    "description": "Jeu de données fictif pour tester le reporting du stock PPI CreditMe/Lisa.",
+    "source_rules": {
+      "company_code": "NOSOC = 00100",
+      "ppi_market_code": "CDSELECT5 = 00001",
+      "current_statuses": ["1", "2"],
+      "sg_payment_mode": "CDMDREG_14 = 2",
+      "unpaid_rule": "TYBLK_21 = 01 and character 22 of STADOSS_21 = O",
+      "outstanding_amount": "CRDU_22",
+      "currency": "CDDEVISE_12"
+    }
+  },
+  "records": [
+    {
+      "dossier_key": "MOCK-PPI-EUR-001",
+      "DLANC": {
+        "NOSOC": "00100",
+        "CDSELECT5": "00001",
+        "CDDEVISE_12": "EUR"
+      },
+      "DPAY": {
+        "CDMDREG_14": "2"
+      },
+      "DSTAT": {
+        "TYBLK_21": "01",
+        "STADOSS_21": "                     "
+      },
+      "TFONC": {
+        "CDSITDOS_22": "2",
+        "CRDU_22": 185000.0
+      }
+    },
+    {
+      "dossier_key": "MOCK-PPI-EUR-002",
+      "DLANC": {
+        "NOSOC": "00100",
+        "CDSELECT5": "00001",
+        "CDDEVISE_12": "EUR"
+      },
+      "DPAY": {
+        "CDMDREG_14": "7"
+      },
+      "DSTAT": {
+        "TYBLK_21": "01",
+        "STADOSS_21": "                     O"
+      },
+      "TFONC": {
+        "CDSITDOS_22": "2",
+        "CRDU_22": 248500.0
+      }
+    },
+    {
+      "dossier_key": "MOCK-PPI-EUR-003",
+      "DLANC": {
+        "NOSOC": "00100",
+        "CDSELECT5": "00001",
+        "CDDEVISE_12": "EUR"
+      },
+      "DPAY": {
+        "CDMDREG_14": "7"
+      },
+      "DSTAT": {
+        "TYBLK_21": "01",
+        "STADOSS_21": "                     "
+      },
+      "TFONC": {
+        "CDSITDOS_22": "1",
+        "CRDU_22": 42000.0
+      }
+    },
+    {
+      "dossier_key": "MOCK-PPI-EUR-004",
+      "DLANC": {
+        "NOSOC": "00100",
+        "CDSELECT5": "00001",
+        "CDDEVISE_12": "EUR"
+      },
+      "DPAY": {
+        "CDMDREG_14": "2"
+      },
+      "DSTAT": {
+        "TYBLK_21": "01",
+        "STADOSS_21": "                     "
+      },
+      "TFONC": {
+        "CDSITDOS_22": "2",
+        "CRDU_22": 76500.0
+      }
+    },
+    {
+      "dossier_key": "MOCK-PPI-CHF-001",
+      "DLANC": {
+        "NOSOC": "00100",
+        "CDSELECT5": "00001",
+        "CDDEVISE_12": "CHF"
+      },
+      "DPAY": {
+        "CDMDREG_14": "7"
+      },
+      "DSTAT": {
+        "TYBLK_21": "01",
+        "STADOSS_21": "                     O"
+      },
+      "TFONC": {
+        "CDSITDOS_22": "2",
+        "CRDU_22": 132000.0
+      }
+    },
+    {
+      "dossier_key": "MOCK-PPI-CHF-002",
+      "DLANC": {
+        "NOSOC": "00100",
+        "CDSELECT5": "00001",
+        "CDDEVISE_12": "CHF"
+      },
+      "DPAY": {
+        "CDMDREG_14": "2"
+      },
+      "DSTAT": {
+        "TYBLK_21": "01",
+        "STADOSS_21": "                     "
+      },
+      "TFONC": {
+        "CDSITDOS_22": "2",
+        "CRDU_22": 98000.0
+      }
+    },
+    {
+      "dossier_key": "MOCK-PPI-EUR-SOLD",
+      "DLANC": {
+        "NOSOC": "00100",
+        "CDSELECT5": "00001",
+        "CDDEVISE_12": "EUR"
+      },
+      "DPAY": {
+        "CDMDREG_14": "7"
+      },
+      "DSTAT": {
+        "TYBLK_21": "01",
+        "STADOSS_21": "                     O"
+      },
+      "TFONC": {
+        "CDSITDOS_22": "5",
+        "CRDU_22": 0.0
+      }
+    },
+    {
+      "dossier_key": "MOCK-PRO-EUR-001",
+      "DLANC": {
+        "NOSOC": "00100",
+        "CDSELECT5": "00002",
+        "CDDEVISE_12": "EUR"
+      },
+      "DPAY": {
+        "CDMDREG_14": "7"
+      },
+      "DSTAT": {
+        "TYBLK_21": "01",
+        "STADOSS_21": "                     O"
+      },
+      "TFONC": {
+        "CDSITDOS_22": "2",
+        "CRDU_22": 410000.0
+      }
+    },
+    {
+      "dossier_key": "MOCK-OTHER-BANK-001",
+      "DLANC": {
+        "NOSOC": "00200",
+        "CDSELECT5": "00001",
+        "CDDEVISE_12": "EUR"
+      },
+      "DPAY": {
+        "CDMDREG_14": "7"
+      },
+      "DSTAT": {
+        "TYBLK_21": "01",
+        "STADOSS_21": "                     O"
+      },
+      "TFONC": {
+        "CDSITDOS_22": "2",
+        "CRDU_22": 99000.0
+      }
+    }
+  ],
+  "expected_reporting": {
+    "EUR": {
+      "current_loans": 4,
+      "outstanding": 552000.0,
+      "external_loans": 2,
+      "external_outstanding": 290500.0,
+      "external_unpaid_loans": 1,
+      "external_unpaid_outstanding": 248500.0,
+      "external_share_of_eur_outstanding_percent": 52.63,
+      "unpaid_share_of_external_loans_percent": 50.0,
+      "unpaid_share_of_external_outstanding_percent": 85.54
+    },
+    "CHF": {
+      "current_loans": 2,
+      "outstanding": 230000.0,
+      "external_loans": 1,
+      "external_outstanding": 132000.0,
+      "external_unpaid_loans": 1,
+      "external_unpaid_outstanding": 132000.0
+    }
+  }
+}
