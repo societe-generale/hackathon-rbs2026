@@ -1,0 +1,1 @@
+"""Local-file RAG ingestion and retrieval with Azure AI Search."""

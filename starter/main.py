@@ -10,7 +10,6 @@ def main() -> None:
     )
     user_query = (
         "J'ai acheté 12 caisses de fruits pour un montant total de 180 €. "
-        "Chaque caisse contient 15 kg de fruits. Je vends l'intégralité du stock à 2,50 € le kilo. "
         "Combien j'ai gagné au total ?"
     )
 

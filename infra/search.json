@@ -1,0 +1,74 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.46.1.21595",
+      "templateHash": "3430706963666381310"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure region for the Azure AI Search service."
+      }
+    },
+    "searchServiceName": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 60,
+      "metadata": {
+        "description": "Globally unique Azure AI Search service name (2-60 chars, lowercase letters, numbers, hyphens)."
+      }
+    },
+    "sku": {
+      "type": "string",
+      "defaultValue": "basic",
+      "allowedValues": [
+        "basic",
+        "standard"
+      ],
+      "metadata": {
+        "description": "SKU tier for the search service. Basic is the cheapest tier that supports vector + semantic search needed for RAG."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Tags applied to the search service."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Search/searchServices",
+      "apiVersion": "2024-06-01-preview",
+      "name": "[parameters('searchServiceName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('sku')]"
+      },
+      "properties": {
+        "replicaCount": 1,
+        "partitionCount": 1,
+        "hostingMode": "default",
+        "publicNetworkAccess": "enabled",
+        "semanticSearch": "free"
+      },
+      "tags": "[parameters('tags')]"
+    }
+  ],
+  "outputs": {
+    "searchServiceName": {
+      "type": "string",
+      "value": "[parameters('searchServiceName')]"
+    },
+    "searchEndpoint": {
+      "type": "string",
+      "value": "[format('https://{0}.search.windows.net', parameters('searchServiceName'))]"
+    }
+  }
+}
