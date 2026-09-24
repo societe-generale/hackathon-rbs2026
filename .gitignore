@@ -41,3 +41,6 @@ infra/main.json
 
 # Data
 data/*
+
+# Analysis output
+starter/csv_agent/analysis_output/*
